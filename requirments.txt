@@ -1,0 +1,7 @@
+uform
+open-clip-torch
+onnx
+onnxruntime
+onnxconverter_common
+tabulate
+pandas
