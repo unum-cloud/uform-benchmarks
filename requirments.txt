@@ -5,3 +5,4 @@ onnxruntime
 onnxconverter_common
 tabulate
 pandas
+openvino
