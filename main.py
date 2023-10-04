@@ -1,3 +1,4 @@
+import os
 import copy
 from json import load
 from typing import Optional
@@ -74,7 +75,7 @@ def onnx_quntize(model_path):
         model_path,
         new_path,
         weight_type=QuantType.QUInt8,
-        optimize_model=True,
+        # optimize_model=True,
     )
 
 
@@ -207,14 +208,18 @@ if __name__ == "__main__":
         pretrained="laion400m_e31",
     )
 
-    # # ONNX
-    # dummy_text = {
-    #     "input_ids": torch.randint(0, 30522, (1, 77)),
-    #     "attention_mask": torch.ones(1, 77, dtype=torch.int32),
-    # }
-    # get_onnx(dummy_text)
-    # onnx_quntize("./onnx/uform_text.onnx")
-    # onnx_f16("./onnx/uform_text.onnx", dummy_text)
+    # ONNX
+    newpath = "./onnx/"
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+
+    dummy_text = {
+        "input_ids": torch.randint(0, 30522, (1, 77)),
+        "attention_mask": torch.ones(1, 77, dtype=torch.int32),
+    }
+    get_onnx(dummy_text)
+    onnx_quntize("./onnx/uform_text.onnx")
+    onnx_f16("./onnx/uform_text.onnx", dummy_text)
 
     # BENCH
     SECONDS = 60
@@ -291,18 +296,3 @@ if __name__ == "__main__":
     print(table1, "\n")
     print("Latency (ms):")
     print(table2)
-
-    # # PyTorch int8 for image encoder
-    # seconds = 100
-    # batch_size = 32
-    # quantized_model = convert_fx(prepared_model)
-    # t_end = time.time() + seconds
-    # cnt = 0
-    # with torch.no_grad():
-    #     while time.time() < t_end:
-    #         _ = quantized_model(dummy)
-    #         cnt += batch_size
-
-    # throughput = cnt / seconds
-    # latency = 1000 * batch_size / throughput
-    # print(throughput, "\n", latency)
