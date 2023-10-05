@@ -3,6 +3,7 @@ import copy
 from json import load
 from typing import Optional
 import time
+import platform
 
 import uform
 import torch
@@ -222,16 +223,16 @@ if __name__ == "__main__":
     onnx_f16("./onnx/uform_text.onnx", dummy_text)
 
     # BENCH
-    SECONDS = 60
+    SECONDS = 1
     throughput_table = [
         [
-            "Batch_size",
+            "Batch size",
+            "OpenCLIP PyTorch",
             "UForm PyTorch",
-            "Open_Clip Pytorch",
             "UFrom ONNX fp32",
             "UFrom ONNX fp16",
             "UFrom ONNX i8",
-            "OpenVINO",
+            "UFrom OpenVINO",
         ]
     ]
     latency_table = copy.deepcopy(throughput_table)
@@ -256,8 +257,8 @@ if __name__ == "__main__":
         throughput_table.append(
             [
                 BATCH_SIZE,
-                round(throughput_u, 1),
                 round(throughput_oc, 1),
+                round(throughput_u, 1),
                 round(throughput_onxf32, 1),
                 round(throughput_onxf16, 1),
                 round(throughput_onxi8, 1),
@@ -267,8 +268,8 @@ if __name__ == "__main__":
         latency_table.append(
             [
                 BATCH_SIZE,
-                round(latency_u, 1),
                 round(latency_oc, 1),
+                round(latency_u, 1),
                 round(latency_onxf32, 1),
                 round(latency_onxf16, 1),
                 round(latency_onxi8, 1),
@@ -277,8 +278,8 @@ if __name__ == "__main__":
         )
         print(f"Batch size {BATCH_SIZE} is done!!")
 
-    table1 = tabulate(throughput_table, headers="firstrow")
-    table2 = tabulate(latency_table, headers="firstrow")
+    table1 = tabulate(throughput_table, tablefmt="psql", headers="firstrow")
+    table2 = tabulate(latency_table, tablefmt="psql", headers="firstrow")
 
     # Save Tables
     df = pd.DataFrame(
@@ -292,7 +293,12 @@ if __name__ == "__main__":
     df.to_csv("stats/throughput.csv")
     dy.to_csv("stats/latency.csv")
 
-    print("\n", "Throughput (sequences per second):")
+    print("\n", "Throughput (sequences per second, higher is better):")
     print(table1, "\n")
-    print("Latency (ms):")
+    print("Latency (ms, lower is better):")
     print(table2)
+    print()
+    print(f"PyTorch version: {torch.__version__}")
+    print(f"ONNX version: {onnx.__version__}")
+    print(f"OpenVINO version: {ov.__version__}")
+    print(f"CPU model: {platform.processor()}")
